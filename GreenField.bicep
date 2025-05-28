@@ -235,7 +235,10 @@ resource userAssignedIdentityReaderRole 'Microsoft.Authorization/roleAssignments
   name: guid(resourceGroup().id, userAssignedIdentity.name, 'Reader')
   scope: resourceGroup()
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7') // Reader role, az cli commands in boot script
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+    ) // Reader role, az cli commands in boot script
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -246,7 +249,10 @@ resource userAssignedIdentitySecretContributorRole 'Microsoft.Authorization/role
   name: guid(keyVault.id, userAssignedIdentity.name, 'SecretContributor')
   scope: keyVault
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7') // Key Vault Secrets User
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
+    ) // Key Vault Secrets User
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
