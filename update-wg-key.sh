@@ -2,7 +2,7 @@
 
 # Script version (auto-updated by deployment process)
 GIT_COMMIT=$(curl -fsSL "https://api.github.com/repos/MicrosoftAzureAaron/BicepWireGaurdNVA/commits?path=update-wg-key.sh&sha=main&per_page=1" | grep '"sha":' | head -n 1 | awk -F '"' '{print $4}')
-echo "update-wg-key.sh version: $GIT_COMMIT"
+echo "[update-wg-key.sh] version: $GIT_COMMIT"
 
 RESTART_WG=0
 KEYVAULT_NAME="$KEYVAULT_NAME"
