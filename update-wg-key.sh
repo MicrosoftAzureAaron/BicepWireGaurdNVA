@@ -77,4 +77,3 @@ if [[ "$REMOTE_COMMIT" != "$LOCAL_COMMIT" && -n "$REMOTE_COMMIT" ]]; then
 else
     echo "[update-wg-key.sh] No changes detected for firstboot.sh, skipping download."
 fi
-
