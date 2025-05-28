@@ -1,5 +1,6 @@
 #!/bin/bash
 SCRIPT_PATH="$(readlink -f "$0")"
+
 # Record the script start time
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 echo "Script started at: $START_TIME"
