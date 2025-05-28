@@ -6,10 +6,9 @@ echo "[update-wg-key.sh] version: $GIT_COMMIT"
 
 RESTART_WG=0
 KEYVAULT_NAME="$KEYVAULT_NAME"
-VM_NAME="$VM_NAME"
 
 # Compare and update private key
-VM_PRIVATE_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-privatekey" --query value -o tsv 2>/dev/null || echo "")
+VM_PRIVATE_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --query value -o tsv 2>/dev/null || echo "")
 CURRENT_PRIVATE_KEY=$(cat /etc/wireguard/privatekey 2>/dev/null || echo "")
 if [[ "$VM_PRIVATE_KEY" != "$CURRENT_PRIVATE_KEY" && -n "$VM_PRIVATE_KEY" ]]; then
     echo "[update-wg-key.sh] Private key changed, updating file and will restart WireGuard."
@@ -19,7 +18,7 @@ if [[ "$VM_PRIVATE_KEY" != "$CURRENT_PRIVATE_KEY" && -n "$VM_PRIVATE_KEY" ]]; th
 fi
 
 # Compare and update public key
-VM_PUBLIC_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-publickey" --query value -o tsv 2>/dev/null || echo "")
+VM_PUBLIC_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --query value -o tsv 2>/dev/null || echo "")
 CURRENT_PUBLIC_KEY=$(cat /etc/wireguard/publickey 2>/dev/null || echo "")
 if [[ "$VM_PUBLIC_KEY" != "$CURRENT_PUBLIC_KEY" && -n "$VM_PUBLIC_KEY" ]]; then
     echo "[update-wg-key.sh] Public key changed, updating file and will restart WireGuard."
