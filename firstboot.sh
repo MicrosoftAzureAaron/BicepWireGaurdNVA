@@ -229,7 +229,7 @@ fi
 
 CRON_TARGET="$CRON_SCRIPT"
 
-echo "Setting up cron job and firstboot.sh script to start on VM boot..."
+echo "Setting up cron job for update-wg-key.sh and firstboot.sh script to start on VM boot..."
 # Add cron job to run every 5 minutes, ensuring no duplicates
 # Remove any existing cron jobs for this script
 sudo crontab -l 2>/dev/null | grep -v "$CRON_TARGET" | sudo crontab -
