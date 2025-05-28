@@ -152,7 +152,35 @@ if ! [[ "$REMOTE_ROUTER" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}$ || "$REMOTE
     exit 1
 fi
 
+# Try to get the NVA interface IP from Key Vault
+NVA_INTERFACE_IP=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name 'nvainterfaceip' --query value -o tsv 2>/dev/null || echo "")
+if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to retrieve nvainterfaceip from Key Vault."
+    exit 1
+fi
 
+# Validate NVA_INTERFACE_IP is in proper IPv4/CIDR format (e.g., 192.168.2.7/32)
+if ! [[ "$NVA_INTERFACE_IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+    echo "ERROR: nvainterfaceip value '$NVA_INTERFACE_IP' is not a valid IPv4/CIDR address."
+    exit 1
+fi
+
+echo "NVA Interface IP: $NVA_INTERFACE_IP"
+
+# Try to get the remote network from Key Vault
+REMOTENETWORK=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name 'remotenetwork' --query value -o tsv 2>/dev/null || echo "")
+if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to retrieve remotenetwork from Key Vault."
+    exit 1
+fi
+
+# Validate REMOTENETWORK is in proper IPv4/CIDR format (e.g., 192.168.1.0/24)
+if ! [[ "$REMOTENETWORK" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+    echo "ERROR: remotenetwork value '$REMOTENETWORK' is not a valid IPv4/CIDR address."
+    exit 1
+fi
+
+echo "Remote Network: $REMOTENETWORK"
 
 # Create WireGuard configuration file
 echo "Creating WireGuard configuration file..."
@@ -160,7 +188,7 @@ sudo bash -c "cat > /etc/wireguard/wg0.conf << EOF
 [Interface]
 MTU = 1420
 PrivateKey = $(cat /etc/wireguard/privatekey)
-Address = 192.168.2.7/32 #tunnel interface
+Address = ${NVA_INTERFACE_IP:-PLACEHOLDER} #tunnel interface
 PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostUp = sysctl -w net.ipv4.ip_forward=1
 PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
@@ -169,7 +197,7 @@ PostDown = sysctl -w net.ipv4.ip_forward=0
 [Peer]
 PublicKey = $(cat /etc/wireguard/remoteserverpublickey 2>/dev/null || echo "PLACEHOLDER")
 Endpoint = ${REMOTE_ROUTER:-PLACEHOLDER}
-AllowedIPs = 192.168.1.0/24
+AllowedIPs = ${REMOTENETWORK:-PLACEHOLDER}
 PersistentKeepalive = 25
 EOF"
 
