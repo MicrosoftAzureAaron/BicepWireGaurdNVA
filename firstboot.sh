@@ -252,7 +252,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-User=azureuser
+User=root
 ExecStart=/home/azureuser/firstboot.sh
 RemainAfterExit=true
 
@@ -263,5 +263,4 @@ EOF"
 sudo systemctl daemon-reload
 sudo systemctl enable firstboot.service
 
-fi
 # End of script

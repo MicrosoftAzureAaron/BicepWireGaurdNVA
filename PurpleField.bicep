@@ -15,8 +15,6 @@ param adminPasswordSecretName string = 'WireGuardNVA-adminPassword'
 
 var adminPasswordSecretUri = 'https://${keyVaultName}.${environment().suffixes.keyvaultDns}/secrets/${adminPasswordSecretName}'
 
-var adminPassword = listSecret(adminPasswordSecretUri, '2015-06-01').value
-
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: 'WireGaurdNVAMI'
 }
@@ -50,7 +48,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
-      adminPassword: adminPassword
+      adminPassword: listSecret(adminPasswordSecretUri, '2015-06-01').value
     }
     storageProfile: {
       imageReference: ubuntuImage

@@ -330,7 +330,6 @@ resource subnetRouteTableAssoc 'Microsoft.Network/virtualNetworks/subnets@2023-0
   }
 }
 
-
 // Create a public IP address for the VM
 resource publicIP 'Microsoft.Network/publicIPAddresses@2023-02-01' = {
   name: '${vmName}-publicIP'
@@ -342,5 +341,3 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2023-02-01' = {
     publicIPAllocationMethod: 'Static'
   }
 }
-
-
