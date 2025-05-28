@@ -50,7 +50,7 @@ resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 
 @description('Remote public key')
 @secure()
-param remoteserverpublickey string = 'Home Routers Public Key'
+param remoteserverpublickey string = ''
 // Store the remote public key in Key Vault
 resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
@@ -85,7 +85,6 @@ resource nvaInterfaceIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 @description('NVA private key')
 @secure()
 param nvaprivatekey string = ''
-
 // Store the NVA private key in Key Vault if provided
 resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaprivatekey)) {
   parent: keyVault

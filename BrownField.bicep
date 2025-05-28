@@ -4,11 +4,13 @@ param vmSku string = 'Standard_F2as_v6'
 @description('Name of the Virtual Machine')
 var vmName = 'WireGuardNVA'
 
-@description('Name of the existing OS disk to attach to the VM')
-param osDiskName string
-
-// @description('Name of the existing user-assigned managed identity')
-// var userAssignedIdentityName = 'WireGaurdNVAMI'
+@description('Ubuntu 20.04 LTS Gen2 image reference')
+var ubuntuImage = {
+  publisher: 'canonical'
+  offer: '0001-com-ubuntu-server-focal'
+  sku: '20_04-lts-gen2'
+  version: 'latest'
+}
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: 'WireGaurdNVAMI'
@@ -17,12 +19,6 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 // Reference existing NIC from Greenfield deployment
 resource nic 'Microsoft.Network/networkInterfaces@2023-02-01' existing = {
   name: '${vmName}-nic'
-}
-
-// Reference existing OS disk from Greenfield deployment
-// You must specify the actual disk name or use a parameter/input, not listKeys/resourceGroups
-resource osDisk 'Microsoft.Compute/disks@2022-07-02' existing = {
-  name: osDiskName
 }
 
 // Deploy VM using existing NIC and OS disk
@@ -40,12 +36,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
       vmSize: vmSku
     }
     storageProfile: {
+      imageReference: ubuntuImage
       osDisk: {
-        osType: 'Linux'
+        createOption: 'FromImage'
         managedDisk: {
-          id: osDisk.id
+          storageAccountType: 'Standard_LRS'
         }
-        createOption: 'Attach'
       }
     }
     networkProfile: {

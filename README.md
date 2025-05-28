@@ -27,13 +27,6 @@ During the first deployment, the following values are entered and stored in the 
 
 ---
 
-Deploy the WireGuard NVA VM (assuming all other resources still exist):
+Deploy the WireGuard NVA VM and new OS disk from scratch (assuming all other resources still exist):
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftAzureAaron%2FBicepWireGaurdNVA%2Fmain%2FBrownField.json)
-
-
----
-
-Deploy the WireGuard NVA VM with a new disk(assuming all other resources still exist):
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftAzureAaron%2FBicepWireGaurdNVA%2Fmain%2FPurpleField.json)

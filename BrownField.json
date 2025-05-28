@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "267493412694323040"
+      "templateHash": "6514914746067948231"
     }
   },
   "parameters": {
@@ -15,16 +15,16 @@
       "metadata": {
         "description": "Select the VM SKU"
       }
-    },
-    "osDiskName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the existing OS disk to attach to the VM"
-      }
     }
   },
   "variables": {
-    "vmName": "WireGuardNVA"
+    "vmName": "WireGuardNVA",
+    "ubuntuImage": {
+      "publisher": "canonical",
+      "offer": "0001-com-ubuntu-server-focal",
+      "sku": "20_04-lts-gen2",
+      "version": "latest"
+    }
   },
   "resources": [
     {
@@ -43,12 +43,12 @@
           "vmSize": "[parameters('vmSku')]"
         },
         "storageProfile": {
+          "imageReference": "[variables('ubuntuImage')]",
           "osDisk": {
-            "osType": "Linux",
+            "createOption": "FromImage",
             "managedDisk": {
-              "id": "[resourceId('Microsoft.Compute/disks', parameters('osDiskName'))]"
-            },
-            "createOption": "Attach"
+              "storageAccountType": "Standard_LRS"
+            }
           }
         },
         "networkProfile": {

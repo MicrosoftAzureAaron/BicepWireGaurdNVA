@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "1744488875082117637"
+      "templateHash": "679566313839237914"
     }
   },
   "parameters": {
@@ -80,7 +80,7 @@
     },
     "remoteserverpublickey": {
       "type": "securestring",
-      "defaultValue": "Home Routers Public Key",
+      "defaultValue": "",
       "metadata": {
         "description": "Remote public key"
       }
