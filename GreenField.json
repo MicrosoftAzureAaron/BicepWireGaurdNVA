@@ -5,13 +5,41 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "8113693980487984141"
+      "templateHash": "18392606070351159348"
     }
   },
   "parameters": {
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "WGNVA-Vet",
+      "metadata": {
+        "description": "Name of the Virtual Network"
+      }
+    },
+    "vnetAddressSpace": {
+      "type": "string",
+      "defaultValue": "100.127.0.0/24",
+      "metadata": {
+        "description": "Azure Address space for the Virtual Network"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "WGNVA",
+      "metadata": {
+        "description": "Subnet name"
+      }
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "100.127.0.0/24",
+      "metadata": {
+        "description": "Subnet address prefix"
+      }
+    },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "Vault-o-Secrets",
+      "defaultValue": "WireGuardNVAKeyVault",
       "metadata": {
         "description": "Name of the existing Key Vault"
       }
@@ -37,6 +65,48 @@
         "description": "Name of the Virtual Machine"
       }
     },
+    "remoteRouter": {
+      "type": "string",
+      "defaultValue": "IP:PORT or FQDN:PORT",
+      "metadata": {
+        "description": "Remote router IP address"
+      }
+    },
+    "remoteserverpublickey": {
+      "type": "securestring",
+      "defaultValue": "Home Routers Public Key",
+      "metadata": {
+        "description": "Remote public key"
+      }
+    },
+    "remoteNetwork": {
+      "type": "string",
+      "defaultValue": "192.168.1.0/24",
+      "metadata": {
+        "description": "Remote network address prefix"
+      }
+    },
+    "nvaInterfaceIp": {
+      "type": "string",
+      "defaultValue": "192.168.2.7/32",
+      "metadata": {
+        "description": "NVA interface IP address (client IP in the Unifi router)"
+      }
+    },
+    "nvaPrivateKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "NVA private key"
+      }
+    },
+    "nvaPublicKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "NVA public key"
+      }
+    },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
@@ -45,10 +115,6 @@
     }
   },
   "variables": {
-    "vnetName": "WGNVA-VNet",
-    "vnetAddressSpace": "100.127.0.0/24",
-    "subnetName": "WGNVA",
-    "subnetAddressPrefix": "100.127.0.0/24",
     "adminPasswordSecretName": "[format('{0}-adminPassword', parameters('vmName'))]",
     "ubuntuImage": {
       "publisher": "canonical",
@@ -58,6 +124,74 @@
     }
   },
   "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoterouter')]",
+      "properties": {
+        "value": "[parameters('remoteRouter')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoteserverpublickey')]",
+      "properties": {
+        "value": "[parameters('remoteserverpublickey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoteNetwork')]",
+      "properties": {
+        "value": "[parameters('remoteNetwork')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvaInterfaceIp')]",
+      "properties": {
+        "value": "[parameters('nvaInterfaceIp')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('nvaPrivateKey')))]",
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvaprivatekey')]",
+      "properties": {
+        "value": "[parameters('nvaPrivateKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('nvaPublicKey')))]",
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvapublickey')]",
+      "properties": {
+        "value": "[parameters('nvaPublicKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2023-02-01",
@@ -109,13 +243,13 @@
       "location": "global",
       "properties": {
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
         },
         "registrationEnabled": false
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
@@ -125,7 +259,7 @@
       "location": "[resourceGroup().location]",
       "properties": {
         "subnet": {
-          "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), variables('subnetName'))]"
+          "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), parameters('subnetName'))]"
         },
         "privateLinkServiceConnections": [
           {
@@ -151,7 +285,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
@@ -233,19 +367,19 @@
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2023-02-01",
-      "name": "[variables('vnetName')]",
+      "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('vnetAddressSpace')]"
+            "[parameters('vnetAddressSpace')]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('subnetName')]",
+            "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "[variables('subnetAddressPrefix')]",
+              "addressPrefix": "[parameters('subnetAddressPrefix')]",
               "serviceEndpoints": [
                 {
                   "service": "Microsoft.KeyVault"
@@ -268,7 +402,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2023-02-01').subnets[0].id]"
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '2023-02-01').subnets[0].id]"
               },
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
@@ -280,7 +414,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-publicIP', parameters('vmName')))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
@@ -378,16 +512,16 @@
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2023-02-01",
-      "name": "[format('{0}/{1}', variables('vnetName'), variables('subnetName'))]",
+      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
       "properties": {
-        "addressPrefix": "[variables('subnetAddressPrefix')]",
+        "addressPrefix": "[parameters('subnetAddressPrefix')]",
         "routeTable": {
           "id": "[resourceId('Microsoft.Network/routeTables', 'WGRouteTable')]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/routeTables', 'WGRouteTable')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {

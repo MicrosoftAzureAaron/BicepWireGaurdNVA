@@ -1,17 +1,17 @@
 @description('Name of the Virtual Network')
-var vnetName = 'WGNVA-VNet'
+param vnetName string = 'WGNVA-Vet'
 
-@description('Address space for the Virtual Network')
-var vnetAddressSpace = '100.127.0.0/24'
+@description('Azure Address space for the Virtual Network')
+param vnetAddressSpace string = '100.127.0.0/24'
 
 @description('Subnet name')
-var subnetName = 'WGNVA'
+param subnetName string = 'WGNVA'
 
 @description('Subnet address prefix')
-var subnetAddressPrefix  = '100.127.0.0/24'
+param subnetAddressPrefix string = '100.127.0.0/24'
 
 @description('Name of the existing Key Vault')
-param keyVaultName string = 'Vault-o-Secrets'
+param keyVaultName string = 'WireGuardNVAKeyVault'
 
 @description('Admin username for the Virtual Machine')
 param adminUsername string = 'azureuser'
@@ -21,6 +21,76 @@ param vmSku string = 'Standard_F2as_v6'
 
 @description('Name of the Virtual Machine')
 param vmName string = 'WireGuardNVA'
+
+@description('Remote router IP address')
+param remoteRouter string = 'IP:PORT or FQDN:PORT'
+// Store the remote router IP in Key Vault
+resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoterouter'
+  properties: {
+    value: remoteRouter
+  }
+}
+
+@description('Remote public key')
+@secure()
+param remoteserverpublickey string = 'Home Routers Public Key'
+// Store the remote public key in Key Vault
+resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoteserverpublickey'
+  properties: {
+    value: remoteserverpublickey
+  }
+}
+
+@description('Remote network address prefix')
+param remoteNetwork string = '192.168.1.0/24'
+// Store the remote network in Key Vault
+resource remoteNetworkSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoteNetwork'
+  properties: {
+    value: remoteNetwork
+  }
+}
+
+@description('NVA interface IP address (client IP in the Unifi router)')
+param nvaInterfaceIp string = '192.168.2.7/32'
+// Store the NVA interface IP in Key Vault
+resource nvaInterfaceIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'nvaInterfaceIp'
+  properties: {
+    value: nvaInterfaceIp
+  }
+}
+
+@description('NVA private key')
+@secure()
+param nvaPrivateKey string = ''
+
+// Store the NVA private key in Key Vault if provided
+resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPrivateKey)) {
+  parent: keyVault
+  name: 'nvaprivatekey'
+  properties: {
+    value: nvaPrivateKey
+  }
+}
+
+@description('NVA public key')
+param nvaPublicKey string = ''
+
+// Store the NVA public key in Key Vault if provided
+resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPublicKey)) {
+  parent: keyVault
+  name: 'nvapublickey'
+  properties: {
+    value: nvaPublicKey
+  }
+}
 
 @description('Name of the secret to store the admin password')
 var adminPasswordSecretName = '${vmName}-adminPassword'

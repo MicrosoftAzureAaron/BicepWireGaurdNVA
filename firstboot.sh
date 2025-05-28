@@ -71,8 +71,8 @@ fi
 
 # Try to get the private and public keys from Key Vault
 echo "Trying to get the private and public keys from Key Vault..."
-VM_PRIVATE_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-privatekey" --query value -o tsv 2>/dev/null || echo "")
-VM_PUBLIC_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-publickey" --query value -o tsv 2>/dev/null || echo "")
+VM_PRIVATE_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --query value -o tsv 2>/dev/null || echo "")
+VM_PUBLIC_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --query value -o tsv 2>/dev/null || echo "")
 
 # Output the first 7 characters of both keys for verification
 echo "VM_PUBLIC_KEY (first 7 chars): ${VM_PUBLIC_KEY:0:7}"
@@ -101,7 +101,7 @@ else
     # Store the new public key in Azure Key Vault
     VM_PUBLIC_KEY=$(cat /etc/wireguard/publickey)
     if [[ -n "$VM_PUBLIC_KEY" ]]; then
-        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-publickey" --value "$VM_PUBLIC_KEY" >/dev/null
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --value "$VM_PUBLIC_KEY" >/dev/null
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Failed to store VM public key in Key Vault."
             exit 1
@@ -113,7 +113,7 @@ else
     # Store the new private key in Azure Key Vault
     VM_PRIVATE_KEY=$(cat /etc/wireguard/privatekey)
     if [[ -n "$VM_PRIVATE_KEY" ]]; then
-        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "${VM_NAME}-privatekey" --value "$VM_PRIVATE_KEY" >/dev/null
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --value "$VM_PRIVATE_KEY" >/dev/null
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Failed to store VM private key in Key Vault."
             exit 1
