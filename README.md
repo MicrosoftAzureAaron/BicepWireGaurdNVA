@@ -25,6 +25,10 @@ During the first deployment, the following values are entered and stored in the 
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftAzureAaron%2FBicepWireGaurdNVA%2Fmain%2FGreenField.json)
 
+## Unifi Router Example for above variables
+
+![Unifi Router Example](unifi.png)
+
 ---
 
 Deploy the WireGuard NVA VM and new OS disk from scratch (assuming all other resources still exist):
