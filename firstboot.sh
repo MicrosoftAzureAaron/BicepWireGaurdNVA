@@ -189,7 +189,7 @@ else
 fi
 
 if [[ "$SCRIPT_PATH" == "/home/azureuser/firstboot.sh" ]]; then
-
+fi
 echo "Setting up cron job and firstboot.sh script to start on VM boot..."
 
 # Download or update update-wg-key.sh in /usr/local/bin only if the remote file has changed
