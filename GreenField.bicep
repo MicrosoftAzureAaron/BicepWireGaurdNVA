@@ -21,7 +21,7 @@ param adminUsername string = 'azureuser'
 param adminPassword string
 
 @description('Name of the secret to store the admin password')
-var adminPasswordSecretName = '${vmName}-adminPassword'
+var adminPasswordSecretName = '${vmName}AdminPassword'
 
 // Create a Key Vault secret to store the admin password
 resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
@@ -42,7 +42,7 @@ param remoteRouter string = 'IP:PORT or FQDN:PORT'
 // Store the remote router IP in Key Vault
 resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'remoterouter'
+  name: 'remoteRouter'
   properties: {
     value: remoteRouter
   }
@@ -50,58 +50,58 @@ resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 
 @description('Remote public key')
 @secure()
-param remoteserverpublickey string = ''
+param remoteServerPublicKey string = ''
 // Store the remote public key in Key Vault
 resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'remoteserverpublickey'
+  name: 'remoteServerPublicKey'
   properties: {
-    value: remoteserverpublickey
+    value: remoteServerPublicKey
   }
 }
 
 @description('Remote network address prefix')
-param remotenetwork string = '192.168.1.0/24'
+param remoteNetwork string = '192.168.1.0/24'
 // Store the remote network in Key Vault
 resource remoteNetworkSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'remotenetwork'
+  name: 'remoteNetwork'
   properties: {
-    value: remotenetwork
+    value: remoteNetwork
   }
 }
 
 @description('NVA interface IP address (client IP in the Unifi router)')
-param nvainterfaceip string = '192.168.2.7/32'
+param nvaInterfaceIp string = '192.168.2.7/32'
 // Store the NVA interface IP in Key Vault
 resource nvaInterfaceIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'nvainterfaceIp'
+  name: 'nvaInterfaceIp'
   properties: {
-    value: nvainterfaceip
+    value: nvaInterfaceIp
   }
 }
 
 @description('NVA private key')
 @secure()
-param nvaprivatekey string = ''
+param nvaPrivateKey string = ''
 // Store the NVA private key in Key Vault if provided
-resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaprivatekey)) {
+resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPrivateKey)) {
   parent: keyVault
-  name: 'nvaprivatekey'
+  name: 'nvaPrivateKey'
   properties: {
-    value: nvaprivatekey
+    value: nvaPrivateKey
   }
 }
 
 @description('NVA public key')
-param nvapublickey string = ''
+param nvaPublicKey string = ''
 // Store the NVA public key in Key Vault if provided
-resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvapublickey)) {
+resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPublicKey)) {
   parent: keyVault
-  name: 'nvapublickey'
+  name: 'nvaPublicKey'
   properties: {
-    value: nvapublickey
+    value: nvaPublicKey
   }
 }
 
@@ -140,7 +140,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
 
 // add resource lock to Key Vault
 resource keyVaultDeleteLock 'Microsoft.Authorization/locks@2020-05-01' = {
-  name: '${keyVault.name}-delete-lock'
+  name: '${keyVault.name}DeleteLock'
   scope: keyVault
   properties: {
     level: 'CanNotDelete'
@@ -156,7 +156,7 @@ resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' =
 
 // Link Private DNS Zone to VNet
 resource keyVaultDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${keyVaultPrivateDnsZone.name}-link'
+  name: '${keyVaultPrivateDnsZone.name}Link'
   parent: keyVaultPrivateDnsZone
   location: 'global'
   properties: {
@@ -169,7 +169,7 @@ resource keyVaultDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetwo
 
 // Create Private Endpoint to reference the DNS Zone
 resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-02-01' = {
-  name: 'kv-private-endpoint'
+  name: 'kvPrivateEndpoint'
   location: resourceGroup().location
   properties: {
     subnet: {
@@ -177,7 +177,7 @@ resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-02-01'
     }
     privateLinkServiceConnections: [
       {
-        name: 'kv-private-link'
+        name: 'kvPrivateLink'
         properties: {
           privateLinkServiceId: keyVault.id
           groupIds: [
@@ -188,7 +188,7 @@ resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-02-01'
     ]
     ipConfigurations: [
       {
-        name: 'kvPrivateEndpointIPConfig'
+        name: 'kvPrivateEndpointIpConfig'
         properties: {
           privateIPAddress: '100.127.0.254'
           groupId: 'vault'
@@ -216,17 +216,17 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 }
 
 // store the public IP of the VM in Key Vault
-resource publicIPSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+resource publicIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'nvapublicip'
+  name: 'nvaPublicIp'
   properties: {
-    value: publicIP.properties.ipAddress
+    value: publicIp.properties.ipAddress
   }
 }
 
 // Create a user-assigned managed identity for the VM
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'WireGaurdNVAMI'
+  name: 'WireGuardNvaMi'
   location: resourceGroup().location
 }
 
@@ -280,7 +280,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' = {
 
 // Create a network interface for the VM
 resource nic 'Microsoft.Network/networkInterfaces@2023-02-01' = {
-  name: '${vmName}-nic'
+  name: '${vmName}Nic'
   location: resourceGroup().location
   properties: {
     enableIPForwarding: true
@@ -293,7 +293,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-02-01' = {
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            id: publicIP.id
+            id: publicIp.id
           }
         }
       }
@@ -369,12 +369,12 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' =
 
 // Create a route table route traffic for the home LAN to the WireGuard NVA
 resource routeTable 'Microsoft.Network/routeTables@2023-02-01' = {
-  name: 'WGRouteTable'
+  name: 'wgRouteTable'
   location: resourceGroup().location
   properties: {
     routes: [
       {
-        name: 'HomeLANRoute'
+        name: 'homeLanRoute'
         properties: {
           addressPrefix: '192.168.1.0/24'
           nextHopType: 'VirtualAppliance'
@@ -398,8 +398,8 @@ resource subnetRouteTableAssoc 'Microsoft.Network/virtualNetworks/subnets@2023-0
 }
 
 // Create a public IP address for the VM
-resource publicIP 'Microsoft.Network/publicIPAddresses@2023-02-01' = {
-  name: '${vmName}-publicIP'
+resource publicIp 'Microsoft.Network/publicIPAddresses@2023-02-01' = {
+  name: '${vmName}PublicIp'
   location: resourceGroup().location
   sku: {
     name: 'Standard'
