@@ -3,7 +3,7 @@
 SCRIPT_PATH="$(readlink -f "$0")"
 
 # Script version (auto-updated by deployment process)
-GIT_COMMIT="{{GIT_COMMIT}}"
+GIT_COMMIT=$(curl -fsSL "https://api.github.com/repos/MicrosoftAzureAaron/BicepWireGaurdNVA/commits?path=firstboot.sh&sha=main&per_page=1" | grep '"sha":' | head -n 1 | awk -F '"' '{print $4}')
 echo "firstboot.sh version: $GIT_COMMIT"
 
 # Record the script start time
