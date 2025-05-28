@@ -1,5 +1,10 @@
 #!/bin/bash
+#current script path
 SCRIPT_PATH="$(readlink -f "$0")"
+
+# Script version (auto-updated by deployment process)
+GIT_COMMIT="{{GIT_COMMIT}}"
+echo "firstboot.sh version: $GIT_COMMIT"
 
 # Record the script start time
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
