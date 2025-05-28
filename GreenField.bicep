@@ -221,7 +221,7 @@ resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 // store the public IP of the VM in Key Vault
 resource publicIPSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'NVAPublicIP'
+  name: 'nvapublicip'
   properties: {
     value: publicIP.properties.ipAddress
   }
