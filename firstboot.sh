@@ -71,19 +71,19 @@ fi
 
 # Try to get the private and public keys from Key Vault
 echo "Trying to get the private and public keys from Key Vault..."
-VM_PRIVATE_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --query value -o tsv 2>/dev/null || echo "")
-VM_PUBLIC_KEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --query value -o tsv 2>/dev/null || echo "")
+NVAPRIVATEKEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --query value -o tsv 2>/dev/null || echo "")
+NVAPUBLICKEY=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --query value -o tsv 2>/dev/null || echo "")
 
 # Output the first 7 characters of both keys for verification
-echo "VM_PUBLIC_KEY (first 7 chars): ${VM_PUBLIC_KEY:0:7}"
-echo "VM_PRIVATE_KEY (first 7 chars): ${VM_PRIVATE_KEY:0:7}"
+echo "NVAPUBLICKEY (first 7 chars): ${NVAPUBLICKEY:0:7}"
+echo "NVAPRIVATEKEY (first 7 chars): ${NVAPRIVATEKEY:0:7}"
 
 # Check to see if the keys were retrieved successfully
-if [[ -n "$VM_PRIVATE_KEY" && -n "$VM_PUBLIC_KEY" ]]; then
+if [[ -n "$NVAPRIVATEKEY" && -n "$NVAPUBLICKEY" ]]; then
     echo "Found existing WireGuard keys in Key Vault. Writing to files..."
-    echo "$VM_PRIVATE_KEY" | sudo tee /etc/wireguard/privatekey >/dev/null
+    echo "$NVAPRIVATEKEY" | sudo tee /etc/wireguard/privatekey >/dev/null
     sudo chmod 600 /etc/wireguard/privatekey
-    echo "$VM_PUBLIC_KEY" | sudo tee /etc/wireguard/publickey >/dev/null
+    echo "$NVAPUBLICKEY" | sudo tee /etc/wireguard/publickey >/dev/null
     sudo chmod 600 /etc/wireguard/publickey
 else
     echo "Unable to retrieve Secrets from KV"
@@ -99,27 +99,27 @@ else
     echo "You can overwrite the keys in Key Vault with the new ones if needed."
 
     # Store the new public key in Azure Key Vault
-    VM_PUBLIC_KEY=$(cat /etc/wireguard/publickey)
-    if [[ -n "$VM_PUBLIC_KEY" ]]; then
-        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --value "$VM_PUBLIC_KEY" >/dev/null
+    NVAPUBLICKEY=$(cat /etc/wireguard/publickey)
+    if [[ -n "$NVAPUBLICKEY" ]]; then
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvapublickey" --value "$NVAPUBLICKEY" >/dev/null
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Failed to store VM public key in Key Vault."
             exit 1
         fi
         echo "Stored VM public key in Key Vault."
-        echo "VM_PUBLIC_KEY: $VM_PUBLIC_KEY"
+        echo "NVAPUBLICKEY: $NVAPUBLICKEY"
     fi
 
     # Store the new private key in Azure Key Vault
-    VM_PRIVATE_KEY=$(cat /etc/wireguard/privatekey)
-    if [[ -n "$VM_PRIVATE_KEY" ]]; then
-        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --value "$VM_PRIVATE_KEY" >/dev/null
+    NVAPRIVATEKEY=$(cat /etc/wireguard/privatekey)
+    if [[ -n "$NVAPRIVATEKEY" ]]; then
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "nvaprivatekey" --value "$NVAPRIVATEKEY" >/dev/null
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Failed to store VM private key in Key Vault."
             exit 1
         fi
         echo "Stored VM private key in Key Vault."
-        echo "VM_PRIVATE_KEY: $VM_PRIVATE_KEY"
+        echo "NVAPRIVATEKEY: $NVAPRIVATEKEY"
     fi
 fi
 
@@ -151,6 +151,8 @@ if ! [[ "$REMOTE_ROUTER" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}$ || "$REMOTE
     echo "ERROR: remoterouter value '$REMOTE_ROUTER' is not a valid IP:PORT or FQDN:PORT."
     exit 1
 fi
+
+
 
 # Create WireGuard configuration file
 echo "Creating WireGuard configuration file..."

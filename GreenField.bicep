@@ -16,6 +16,21 @@ param keyVaultName string = 'WireGuardNVAKeyVault'
 @description('Admin username for the Virtual Machine')
 param adminUsername string = 'azureuser'
 
+@description('Admin password for the Virtual Machine')
+@secure()
+param adminPassword string
+
+@description('Name of the secret to store the admin password')
+var adminPasswordSecretName = '${vmName}-adminPassword'
+
+// Create a Key Vault secret to store the admin password
+resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault // Simplified syntax using the parent property
+  name: adminPasswordSecretName
+  properties: {
+    value: adminPassword // Store the evaluated value of adminPassword
+  }
+}
 @description('Select the VM SKU')
 param vmSku string = 'Standard_F2as_v6'
 
@@ -46,54 +61,50 @@ resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = 
 }
 
 @description('Remote network address prefix')
-param remoteNetwork string = '192.168.1.0/24'
+param remotenetwork string = '192.168.1.0/24'
 // Store the remote network in Key Vault
 resource remoteNetworkSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'remoteNetwork'
+  name: 'remotenetwork'
   properties: {
-    value: remoteNetwork
+    value: remotenetwork
   }
 }
 
 @description('NVA interface IP address (client IP in the Unifi router)')
-param nvaInterfaceIp string = '192.168.2.7/32'
+param nvainterfaceip string = '192.168.2.7/32'
 // Store the NVA interface IP in Key Vault
 resource nvaInterfaceIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault
-  name: 'nvaInterfaceIp'
+  name: 'nvainterfaceIp'
   properties: {
-    value: nvaInterfaceIp
+    value: nvainterfaceip
   }
 }
 
 @description('NVA private key')
 @secure()
-param nvaPrivateKey string = ''
+param nvaprivatekey string = ''
 
 // Store the NVA private key in Key Vault if provided
-resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPrivateKey)) {
+resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaprivatekey)) {
   parent: keyVault
   name: 'nvaprivatekey'
   properties: {
-    value: nvaPrivateKey
+    value: nvaprivatekey
   }
 }
 
 @description('NVA public key')
-param nvaPublicKey string = ''
-
+param nvapublickey string = ''
 // Store the NVA public key in Key Vault if provided
-resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPublicKey)) {
+resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvapublickey)) {
   parent: keyVault
   name: 'nvapublickey'
   properties: {
-    value: nvaPublicKey
+    value: nvapublickey
   }
 }
-
-@description('Name of the secret to store the admin password')
-var adminPasswordSecretName = '${vmName}-adminPassword'
 
 @description('Ubuntu 20.04 LTS Gen2 image reference')
 var ubuntuImage = {
@@ -102,10 +113,6 @@ var ubuntuImage = {
   sku: '20_04-lts-gen2'
   version: 'latest'
 }
-
-@description('Admin password for the Virtual Machine')
-@secure()
-param adminPassword string
 
 // Deploy a new Key Vault and set access policy for the VM's managed identity
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
@@ -206,15 +213,6 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
         }
       }
     ]
-  }
-}
-
-// Create a Key Vault secret to store the admin password
-resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  parent: keyVault // Simplified syntax using the parent property
-  name: adminPasswordSecretName
-  properties: {
-    value: adminPassword // Store the evaluated value of adminPassword
   }
 }
 
