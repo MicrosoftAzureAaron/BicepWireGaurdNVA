@@ -2,19 +2,19 @@
 var vnetName = 'WGNVA-VNet'
 
 @description('Address space for the Virtual Network')
-var vnetAddressSpace = '100.127.0.0/24'
+var vnetAddressSpace = '10.0.0.0/22'
 
 @description('Subnet name')
 var subnetName = 'WGNVA'
 
 @description('Subnet address prefix')
-var subnetAddressPrefix  = '100.127.0.0/24'
+var subnetAddressPrefix  = '10.0.0.0/27'
 
 @description('Name of the existing Key Vault')
-param keyVaultName string = 'Vault-o-Secrets'
+param keyVaultName string = 'lywagnon.keyVault.01'
 
 @description('Admin username for the Virtual Machine')
-param adminUsername string = 'azureuser'
+param adminUsername string = 'lytehouse'
 
 @description('Select the VM SKU')
 param vmSku string = 'Standard_F2as_v6'
