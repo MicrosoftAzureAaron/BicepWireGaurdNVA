@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "8801223771556604220"
+      "templateHash": "4373552906912396353"
     }
   },
   "parameters": {
@@ -111,6 +111,12 @@
       "defaultValue": "",
       "metadata": {
         "description": "NVA public key"
+      }
+    },
+    "keyVaultAdminObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Your objectId or service principal to assign as Key Vault Administrator"
       }
     }
   },
@@ -360,6 +366,20 @@
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), 'KeyVaultAdmin')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
+        "principalId": "[parameters('keyVaultAdminObjectId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {

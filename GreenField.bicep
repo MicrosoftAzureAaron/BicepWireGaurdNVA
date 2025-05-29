@@ -255,6 +255,23 @@ resource userAssignedIdentitySecretContributorRole 'Microsoft.Authorization/role
   }
 }
 
+// Assign Key Vault Administrator role to the user-assigned identity at the Key Vault scope
+@description('Your objectId or service principal to assign as Key Vault Administrator')
+param keyVaultAdminObjectId string
+
+resource keyVaultAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(keyVault.id, 'KeyVaultAdmin')
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '00482a5a-887f-4fb3-b363-3b7fe8e74483' // Key Vault Administrator
+    )
+    principalId: keyVaultAdminObjectId
+    principalType: 'User'
+  }
+}
+
 // Create a virtual network with a subnet
 resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' = {
   name: vnetName
