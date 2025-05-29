@@ -251,6 +251,7 @@ if sudo wg show wg0 > /dev/null 2>&1; then
 else
     echo "WireGuard tunnel wg0 failed to start. Check configuration and logs."
     sudo systemctl status wg-quick@wg0 --no-pager
+    pause 30 
     echo "Restarting VM to attempt recovery..."
     sudo reboot
 fi
