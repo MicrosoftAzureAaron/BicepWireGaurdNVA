@@ -223,7 +223,7 @@ resource publicIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 
 // Create a user-assigned managed identity for the VM
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'WireGuardNvaMi'
+  name: 'WireGuardNVAMI'
   location: resourceGroup().location
 }
 

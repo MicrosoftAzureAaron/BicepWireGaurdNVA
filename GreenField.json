@@ -331,35 +331,35 @@
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2023-01-31",
-      "name": "WireGuardNvaMi",
+      "name": "WireGuardNVAMI",
       "location": "[resourceGroup().location]"
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, 'WireGuardNvaMi', 'Reader')]",
+      "name": "[guid(resourceGroup().id, 'WireGuardNVAMI', 'Reader')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi'), '2023-01-31').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI'), '2023-01-31').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi')]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI')]"
       ]
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), 'WireGuardNvaMi', 'SecretContributor')]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), 'WireGuardNVAMI', 'SecretContributor')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi'), '2023-01-31').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI'), '2023-01-31').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi')]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI')]"
       ]
     },
     {
@@ -423,7 +423,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi'))]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI'))]": {}
         }
       },
       "properties": {
@@ -462,7 +462,7 @@
         "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', 'privatelink.vaultcore.azure.net', format('{0}Link', 'privatelink.vaultcore.azure.net'))]",
         "[resourceId('Microsoft.Network/privateEndpoints', 'kvPrivateEndpoint')]",
         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', parameters('vmName')))]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNvaMi')]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI')]"
       ]
     },
     {
