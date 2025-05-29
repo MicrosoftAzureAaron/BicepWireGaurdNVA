@@ -10,7 +10,7 @@ param subnetName string = 'WGNVA'
 @description('Subnet address prefix')
 param subnetAddressPrefix string = '100.127.0.0/24'
 
-@description('Name of the existing Key Vault')
+@description('Name of the Key Vault')
 param keyVaultName string = 'WireGuardNVAKeyVault'
 
 @description('Admin username for the Virtual Machine')
@@ -30,7 +30,6 @@ param adminPassword string
 
 @description('Name of the secret to store the admin password')
 var adminPasswordSecretName = '${vmName}AdminPassword'
-
 // Create a Key Vault secret to store the admin password
 resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: keyVault // Simplified syntax using the parent property

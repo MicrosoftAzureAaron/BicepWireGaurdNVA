@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "2643621913649397519"
+      "templateHash": "870378874319530188"
     }
   },
   "parameters": {
@@ -25,26 +25,27 @@
     },
     "keyVaultName": {
       "type": "string",
+      "defaultValue": "WireGuardNVAKeyVault3",
       "metadata": {
-        "description": "Name of the Key Vault containing the secrets"
+        "description": "Name of the existing Key Vault"
       }
     },
-    "adminUsernameSecretName": {
+    "adminUsername": {
       "type": "string",
-      "defaultValue": "AdminUsername",
+      "defaultValue": "azureuser",
       "metadata": {
-        "description": "Name of the secret for the admin username"
+        "description": "Admin username for the Virtual Machine"
       }
     },
-    "adminPasswordSecretName": {
-      "type": "string",
-      "defaultValue": "AdminPassword",
+    "adminPassword": {
+      "type": "securestring",
       "metadata": {
-        "description": "Name of the secret for the admin password"
+        "description": "Admin password for the Virtual Machine"
       }
     }
   },
   "variables": {
+    "adminPasswordSecretName": "[format('{0}AdminPassword', parameters('vmName'))]",
     "ubuntuImage": {
       "publisher": "canonical",
       "offer": "0001-com-ubuntu-server-focal",
@@ -53,6 +54,22 @@
     }
   },
   "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), format('{0}AdminUsername', parameters('vmName')))]",
+      "properties": {
+        "value": "[parameters('adminUsername')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('adminPasswordSecretName'))]",
+      "properties": {
+        "value": "[parameters('adminPassword')]"
+      }
+    },
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-03-01",
@@ -70,8 +87,8 @@
         },
         "osProfile": {
           "computerName": "[parameters('vmName')]",
-          "adminUsername": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01').properties.secrets[parameters('adminUsernameSecretName')].value]",
-          "adminPassword": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01', 'Full').properties.secrets[parameters('adminPasswordSecretName')].value]"
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": "[variables('ubuntuImage')]",
