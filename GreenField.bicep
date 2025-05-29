@@ -1,5 +1,5 @@
 @description('Name of the Virtual Network')
-param vnetName string = 'WGNVA-Vet'
+param vnetName string = 'WGNVA'
 
 @description('Azure Address space for the Virtual Network')
 param vnetAddressSpace string = '100.127.0.0/24'

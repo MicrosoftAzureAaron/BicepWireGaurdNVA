@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "1505660789889496107"
+      "templateHash": "16180772931500734761"
     }
   },
   "parameters": {
     "vnetName": {
       "type": "string",
-      "defaultValue": "WGNVA-Vet",
+      "defaultValue": "WGNVA",
       "metadata": {
         "description": "Name of the Virtual Network"
       }
