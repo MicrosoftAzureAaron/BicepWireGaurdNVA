@@ -58,23 +58,23 @@ else
     echo "WireGuard installed successfully."
 fi
 
-#if script is not running from /home/azureuser/firstboot.sh, wait for 60 seconds to allow managed identity to propagate
-if [[ "$SCRIPT_PATH" != "/home/azureuser/firstboot.sh" ]]; then
-    # Wait until 60 seconds have passed since script start time to allow managed identity to propagate
-    START_EPOCH=$(date -d "$START_TIME" +%s)
-    while true; do
-        NOW_EPOCH=$(date +%s)
-        ELAPSED=$((NOW_EPOCH - START_EPOCH))
-        if (( ELAPSED >= 60 )); then
-            echo "60 seconds have elapsed since script start. Continuing..."
-            break
-        else
-            REMAINING=$((60 - ELAPSED))
-            echo "Waiting for managed identity propagation... $REMAINING seconds remaining."
-            sleep 5
-        fi
-    done
-fi
+# #if script is not running from /home/azureuser/firstboot.sh, wait for 60 seconds to allow managed identity to propagate
+# if [[ "$SCRIPT_PATH" != "/home/azureuser/firstboot.sh" ]]; then
+#     # Wait until 60 seconds have passed since script start time to allow managed identity to propagate
+#     START_EPOCH=$(date -d "$START_TIME" +%s)
+#     while true; do
+#         NOW_EPOCH=$(date +%s)
+#         ELAPSED=$((NOW_EPOCH - START_EPOCH))
+#         if (( ELAPSED >= 60 )); then
+#             echo "60 seconds have elapsed since script start. Continuing..."
+#             break
+#         else
+#             REMAINING=$((60 - ELAPSED))
+#             echo "Waiting for managed identity propagation... $REMAINING seconds remaining."
+#             sleep 5
+#         fi
+#     done
+# fi
 
 # Login to Azure CLI using user assigned managed identity, tenant, and subscription
 echo "Logging in to Azure CLI with user assigned managed identity..."
