@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "15094953101179605288"
+      "templateHash": "11033219979726968126"
     }
   },
   "parameters": {
@@ -15,10 +15,31 @@
       "metadata": {
         "description": "Select the VM SKU"
       }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "HATestKeyVault",
+      "metadata": {
+        "description": "Name of the existing Key Vault"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Admin username for the Virtual Machine"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for the Virtual Machine"
+      }
     }
   },
   "variables": {
     "vmName": "WireGuardNVA",
+    "adminPasswordSecretName": "[format('{0}AdminPassword', variables('vmName'))]",
     "ubuntuImage": {
       "publisher": "canonical",
       "offer": "0001-com-ubuntu-server-focal",
@@ -27,6 +48,22 @@
     }
   },
   "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), format('{0}AdminUsername', variables('vmName')))]",
+      "properties": {
+        "value": "[parameters('adminUsername')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('adminPasswordSecretName'))]",
+      "properties": {
+        "value": "[parameters('adminPassword')]"
+      }
+    },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2023-02-01",
@@ -62,6 +99,11 @@
         "hardwareProfile": {
           "vmSize": "[parameters('vmSku')]"
         },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
         "storageProfile": {
           "imageReference": "[variables('ubuntuImage')]",
           "osDisk": {
@@ -74,10 +116,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]",
-              "properties": {
-                "primary": true
-              }
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]"
             }
           ]
         },

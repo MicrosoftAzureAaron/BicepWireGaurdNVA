@@ -6,6 +6,40 @@ param vmSku string = 'Standard_F2as_v6'
 @description('Name of the Virtual Machine')
 var vmName = 'WireGuardNVA'
 
+@description('Name of the existing Key Vault')
+param keyVaultName string = 'HATestKeyVault'
+
+// Reference the existing Key Vault
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+}
+
+@description('Admin username for the Virtual Machine')
+param adminUsername string = 'azureuser'
+// Store the admin username in Key Vault
+resource adminUsernameSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: '${vmName}AdminUsername'
+  properties: {
+    value: adminUsername
+  }
+}
+
+@description('Admin password for the Virtual Machine')
+@secure()
+param adminPassword string
+
+@description('Name of the secret to store the admin password')
+var adminPasswordSecretName = '${vmName}AdminPassword'
+// Create a Key Vault secret to store the admin password
+resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault // Simplified syntax using the parent property
+  name: adminPasswordSecretName
+  properties: {
+    value: adminPassword // Store the evaluated value of adminPassword
+  }
+}
+
 @description('Ubuntu 20.04 LTS Gen2 image reference')
 var ubuntuImage = {
   publisher: 'canonical'
@@ -57,6 +91,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     hardwareProfile: {
       vmSize: vmSku
     }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+      adminPassword: adminPassword
+    }
     storageProfile: {
       imageReference: ubuntuImage
       osDisk: {
@@ -70,9 +109,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
       networkInterfaces: [
         {
           id: nic.id
-          properties: {
-            primary: true
-          }
         }
       ]
     }
