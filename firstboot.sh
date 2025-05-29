@@ -39,6 +39,7 @@ echo "Script started at: $START_TIME"
 # Update and upgrade packages
 echo "Updating package list..."
 sudo apt-get update -y
+
 echo "Upgrading installed packages..."
 sudo apt-get upgrade -y
 
@@ -48,7 +49,7 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Install WireGuard
 echo "Installing WireGuard..."
-sudo apt-get install -y wireguard wiregaurd-tools
+sudo apt-get install -y wireguard-tools
 # Check if WireGuard is installed successfully
 if ! command -v sudo wg &> /dev/null; then
     echo "ERROR: WireGuard installation failed. Exiting."
