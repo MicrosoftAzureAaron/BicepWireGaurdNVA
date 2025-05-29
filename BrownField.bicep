@@ -54,7 +54,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 // Reference existing NIC from Greenfield deployment
 resource nic 'Microsoft.Network/networkInterfaces@2023-02-01' existing = {
-  name: '${vmName}-nic'
+  name: '${vmName}nic'
 }
 
 resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
