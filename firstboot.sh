@@ -4,7 +4,33 @@ SCRIPT_PATH="$(readlink -f "$0")"
 
 # Script version (auto-updated by deployment process)
 GIT_COMMIT=$(curl -fsSL "https://api.github.com/repos/MicrosoftAzureAaron/BicepWireGaurdNVA/commits?path=firstboot.sh&sha=main&per_page=1" | grep '"sha":' | head -n 1 | awk -F '"' '{print $4}')
-echo "firstboot.sh version: $GIT_COMMIT"
+echo "firstboot.sh version: $GIT_COMMIT" 
+
+# Download the latest firstboot.sh from GitHub to /home/azureuser/
+curl -fsSL -o /home/azureuser/firstboot.sh "https://raw.githubusercontent.com/MicrosoftAzureAaron/BicepWireGaurdNVA/main/firstboot.sh"
+sudo chmod +x /home/azureuser/firstboot.sh
+sudo chown azureuser:azureuser /home/azureuser/firstboot.sh
+
+# Ensure firstboot.sh runs at VM startup via systemd service incase the custom script extension fails to complete
+SERVICE_FILE="/etc/systemd/system/firstboot.service"
+sudo bash -c "cat > $SERVICE_FILE << EOF
+[Unit]
+Description=Run firstboot.sh at startup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/home/azureuser/firstboot.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+sudo systemctl daemon-reload
+sudo systemctl enable firstboot.service
 
 # Record the script start time
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
@@ -273,27 +299,5 @@ if [[ "$SCRIPT_PATH" != "/home/azureuser/firstboot.sh" ]]; then
     # Ensure the script is owned by azureuser
     sudo chown azureuser:azureuser /home/azureuser/firstboot.sh
 fi
-
-# Ensure firstboot.sh runs at VM startup via systemd service
-
-SERVICE_FILE="/etc/systemd/system/firstboot.service"
-sudo bash -c "cat > $SERVICE_FILE << EOF
-[Unit]
-Description=Run firstboot.sh at startup
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-User=root
-ExecStart=/home/azureuser/firstboot.sh
-RemainAfterExit=true
-
-[Install]
-WantedBy=multi-user.target
-EOF"
-
-sudo systemctl daemon-reload
-sudo systemctl enable firstboot.service
 
 # End of script
