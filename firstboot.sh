@@ -42,13 +42,20 @@ sudo apt-get update -y
 echo "Upgrading installed packages..."
 sudo apt-get upgrade -y
 
-# Install WireGuard
-echo "Installing WireGuard..."
-sudo apt-get install -y wireguard
-
 # Install Azure CLI for Key Vault access
 echo "Installing Azure CLI..."
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Install WireGuard
+echo "Installing WireGuard..."
+sudo apt-get install -y wireguard wiregaurd-tools
+# Check if WireGuard is installed successfully
+if ! command -v sudo wg &> /dev/null; then
+    echo "ERROR: WireGuard installation failed. Exiting."
+    exit 1
+else
+    echo "WireGuard installed successfully."
+fi
 
 #if script is not running from /home/azureuser/firstboot.sh, wait for 60 seconds to allow managed identity to propagate
 if [[ "$SCRIPT_PATH" != "/home/azureuser/firstboot.sh" ]]; then
