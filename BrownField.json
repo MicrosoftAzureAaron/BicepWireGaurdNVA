@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "9530864647098132566"
+      "templateHash": "2631396988641919642"
     }
   },
   "parameters": {
@@ -15,10 +15,36 @@
       "metadata": {
         "description": "Select the VM SKU"
       }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "WireGuardNVA",
+      "metadata": {
+        "description": "Name of the VM"
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Key Vault containing the secrets"
+      }
+    },
+    "adminUsernameSecretName": {
+      "type": "string",
+      "defaultValue": "AdminUsername",
+      "metadata": {
+        "description": "Name of the secret for the admin username"
+      }
+    },
+    "adminPasswordSecretName": {
+      "type": "string",
+      "defaultValue": "AdminPassword",
+      "metadata": {
+        "description": "Name of the secret for the admin password"
+      }
     }
   },
   "variables": {
-    "vmName": "WireGuardNVA",
     "ubuntuImage": {
       "publisher": "canonical",
       "offer": "0001-com-ubuntu-server-focal",
@@ -30,7 +56,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-03-01",
-      "name": "[variables('vmName')]",
+      "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "identity": {
         "type": "UserAssigned",
@@ -51,10 +77,15 @@
             }
           }
         },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01').properties.secrets[parameters('adminUsernameSecretName')].value]",
+          "adminPassword": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01', 'Full').properties.secrets[parameters('adminPasswordSecretName')].value]"
+        },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', variables('vmName')))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
               "properties": {
                 "primary": true
               }
@@ -72,7 +103,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2023-03-01",
-      "name": "[format('{0}/{1}', variables('vmName'), 'customScript')]",
+      "name": "[format('{0}/{1}', parameters('vmName'), 'customScript')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
@@ -87,7 +118,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
   ]

@@ -15,6 +15,14 @@ param keyVaultName string = 'WireGuardNVAKeyVault'
 
 @description('Admin username for the Virtual Machine')
 param adminUsername string = 'azureuser'
+// Store the admin username in Key Vault
+resource adminUsernameSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: '${vmName}AdminUsername'
+  properties: {
+    value: adminUsername
+  }
+}
 
 @description('Admin password for the Virtual Machine')
 @secure()
@@ -31,11 +39,19 @@ resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
     value: adminPassword // Store the evaluated value of adminPassword
   }
 }
+
 @description('Select the VM SKU')
 param vmSku string = 'Standard_F2as_v6'
 
 @description('Name of the Virtual Machine')
 param vmName string = 'WireGuardNVA'
+resource vmNameSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'nvaName'
+  properties: {
+    value: vmName
+  }
+}
 
 @description('Remote router IP address')
 param remoteRouter string = 'IP:PORT or FQDN:PORT'

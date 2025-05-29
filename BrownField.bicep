@@ -1,8 +1,23 @@
 @description('Select the VM SKU')
 param vmSku string = 'Standard_F2as_v6'
 
-@description('Name of the Virtual Machine')
-var vmName = 'WireGuardNVA'
+@description('Name of the VM')
+param vmName string = 'WireGuardNVA'
+
+@description('Name of the Key Vault containing the secrets')
+param keyVaultName string
+
+@description('Name of the secret for the admin username')
+param adminUsernameSecretName string = 'AdminUsername'
+
+@description('Name of the secret for the admin password')
+param adminPasswordSecretName string = 'AdminPassword'
+
+// Get the admin username from Key Vault (secure)
+var adminUsername = reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, keyVaultName), '2019-09-01').properties.secrets[adminUsernameSecretName].value
+
+// Get the admin password from Key Vault (secure)
+var adminPassword = reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, keyVaultName), '2019-09-01', 'Full').properties.secrets[adminPasswordSecretName].value
 
 @description('Ubuntu 20.04 LTS Gen2 image reference')
 var ubuntuImage = {
@@ -38,11 +53,16 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     storageProfile: {
       imageReference: ubuntuImage
       osDisk: {
-        createOption: 'FromImage'
-        managedDisk: {
-          storageAccountType: 'Standard_LRS'
-        }
+      createOption: 'FromImage'
+      managedDisk: {
+        storageAccountType: 'Standard_LRS'
       }
+      }
+    }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+      adminPassword: adminPassword
     }
     networkProfile: {
       networkInterfaces: [
