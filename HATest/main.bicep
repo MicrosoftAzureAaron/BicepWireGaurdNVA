@@ -13,6 +13,74 @@ param subnetAddressPrefix string = '100.127.0.0/24'
 @description('Name of the Key Vault')
 param keyVaultName string = 'HATestKeyVault'
 
+
+@description('Remote router IP address')
+param remoteRouter string = 'IP:PORT or FQDN:PORT'
+// Store the remote router IP in Key Vault
+resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoteRouter'
+  properties: {
+    value: remoteRouter
+  }
+}
+
+@description('Remote public key')
+param remoteServerPublicKey string = ''
+// Store the remote public key in Key Vault
+resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoteServerPublicKey'
+  properties: {
+    value: remoteServerPublicKey
+  }
+}
+
+@description('Remote network address prefix')
+param remoteNetwork string = '192.168.1.0/24'
+// Store the remote network in Key Vault
+resource remoteNetworkSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'remoteNetwork'
+  properties: {
+    value: remoteNetwork
+  }
+}
+
+@description('NVA interface IP address (client IP in the Unifi router)')
+param nvaInterfaceIp string = '192.168.2.7/32'
+// Store the NVA interface IP in Key Vault
+resource nvaInterfaceIpSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  parent: keyVault
+  name: 'nvaInterfaceIp'
+  properties: {
+    value: nvaInterfaceIp
+  }
+}
+
+@description('NVA private key')
+@secure()
+param nvaPrivateKey string = ''
+// Store the NVA private key in Key Vault if provided
+resource nvaPrivateKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPrivateKey)) {
+  parent: keyVault
+  name: 'nvaPrivateKey'
+  properties: {
+    value: nvaPrivateKey
+  }
+}
+
+@description('NVA public key')
+param nvaPublicKey string = ''
+// Store the NVA public key in Key Vault if provided
+resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(nvaPublicKey)) {
+  parent: keyVault
+  name: 'nvaPublicKey'
+  properties: {
+    value: nvaPublicKey
+  }
+}
+
 resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
   name: vnetName
   location: resourceGroup().location

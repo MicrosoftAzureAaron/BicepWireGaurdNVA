@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "18284251578664511008"
+      "templateHash": "7149658191041685209"
     }
   },
   "parameters": {
@@ -30,6 +30,48 @@
         "description": "Name of the Key Vault"
       }
     },
+    "remoteRouter": {
+      "type": "string",
+      "defaultValue": "IP:PORT or FQDN:PORT",
+      "metadata": {
+        "description": "Remote router IP address"
+      }
+    },
+    "remoteServerPublicKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Remote public key"
+      }
+    },
+    "remoteNetwork": {
+      "type": "string",
+      "defaultValue": "192.168.1.0/24",
+      "metadata": {
+        "description": "Remote network address prefix"
+      }
+    },
+    "nvaInterfaceIp": {
+      "type": "string",
+      "defaultValue": "192.168.2.7/32",
+      "metadata": {
+        "description": "NVA interface IP address (client IP in the Unifi router)"
+      }
+    },
+    "nvaPrivateKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "NVA private key"
+      }
+    },
+    "nvaPublicKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "NVA public key"
+      }
+    },
     "keyVaultAdminObjectId": {
       "type": "string",
       "metadata": {
@@ -42,6 +84,74 @@
     "subnetName": "HA-WGNVA"
   },
   "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoteRouter')]",
+      "properties": {
+        "value": "[parameters('remoteRouter')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoteServerPublicKey')]",
+      "properties": {
+        "value": "[parameters('remoteServerPublicKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'remoteNetwork')]",
+      "properties": {
+        "value": "[parameters('remoteNetwork')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvaInterfaceIp')]",
+      "properties": {
+        "value": "[parameters('nvaInterfaceIp')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('nvaPrivateKey')))]",
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvaPrivateKey')]",
+      "properties": {
+        "value": "[parameters('nvaPrivateKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('nvaPublicKey')))]",
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'nvaPublicKey')]",
+      "properties": {
+        "value": "[parameters('nvaPublicKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2023-04-01",
