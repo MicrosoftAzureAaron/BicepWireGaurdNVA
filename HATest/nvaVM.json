@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "9530864647098132566"
+      "templateHash": "9690661272068389361"
     }
   },
   "parameters": {
@@ -28,6 +28,26 @@
   },
   "resources": [
     {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-02-01",
+      "name": "[format('{0}Nic', variables('vmName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "enableIPForwarding": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'haTest'), '2023-02-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-03-01",
       "name": "[variables('vmName')]",
@@ -35,7 +55,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGuardNVAMI'))]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'WireGaurdNVAMI'))]": {}
         }
       },
       "properties": {
@@ -54,7 +74,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', variables('vmName')))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]",
               "properties": {
                 "primary": true
               }
@@ -67,7 +87,10 @@
             "storageUri": null
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]"
+      ]
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
