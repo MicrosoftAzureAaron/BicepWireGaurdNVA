@@ -1,3 +1,5 @@
+// Bicep template for deploying a WireGuard NVA in an existing Azure environment
+
 @description('Select the VM SKU')
 param vmSku string = 'Standard_F2as_v6'
 
