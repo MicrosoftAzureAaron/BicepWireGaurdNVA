@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "17548214792277059860"
+      "templateHash": "1505660789889496107"
     }
   },
   "parameters": {
@@ -41,7 +41,7 @@
       "type": "string",
       "defaultValue": "WireGuardNVAKeyVault",
       "metadata": {
-        "description": "Name of the existing Key Vault"
+        "description": "Name of the Key Vault"
       }
     },
     "adminUsername": {

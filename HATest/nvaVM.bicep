@@ -15,7 +15,7 @@ var ubuntuImage = {
 }
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
-  name: 'WireGaurdNVAMI'
+  name: 'WireGuardNVAMI'
 }
 
 // Reference existing VNET named haTest
