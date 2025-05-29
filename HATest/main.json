@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "8667155737972818166"
+      "templateHash": "18284251578664511008"
     }
   },
   "parameters": {
@@ -39,7 +39,7 @@
   },
   "variables": {
     "vnetName": "HaTest",
-    "subnetName": "WGNVA"
+    "subnetName": "HA-WGNVA"
   },
   "resources": [
     {
@@ -105,6 +105,39 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', variables('vnetName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2023-04-01",
+      "name": "[format('{0}-int-lb', variables('vnetName'))]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "InternalLoadBalancerFrontEnd",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), variables('subnetName'))]"
+              },
+              "privateIPAddress": "100.127.0.253",
+              "privateIPAllocationMethod": "Static"
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "InternalLoadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules": [],
+        "probes": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {

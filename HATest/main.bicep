@@ -5,7 +5,7 @@ var vnetName = 'HaTest'
 param vnetAddressSpace string = '100.127.0.0/24'
 
 @description('Subnet name')
-var subnetName = 'WGNVA'
+var subnetName = 'HA-WGNVA'
 
 @description('Subnet address prefix')
 param subnetAddressPrefix string = '100.127.0.0/24'
@@ -71,7 +71,34 @@ resource lb 'Microsoft.Network/loadBalancers@2023-04-01' = {
     probes: []
   }
 }
-
+resource internalLb 'Microsoft.Network/loadBalancers@2023-04-01' = {
+  name: '${vnetName}-int-lb'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    frontendIPConfigurations: [
+      {
+        name: 'InternalLoadBalancerFrontEnd'
+        properties: {
+          subnet: {
+            id: '${vnet.id}/subnets/${subnetName}'
+          }
+          privateIPAddress: '100.127.0.253'
+          privateIPAllocationMethod: 'Static'
+        }
+      }
+    ]
+    backendAddressPools: [
+      {
+        name: 'InternalLoadBalancerBackEnd'
+      }
+    ]
+    loadBalancingRules: []
+    probes: []
+  }
+}
 // Deploy a new Key Vault and set access policy for the VM's managed identity
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   name: keyVaultName
