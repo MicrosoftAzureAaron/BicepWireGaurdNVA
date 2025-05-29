@@ -49,7 +49,6 @@ resource remoteRouterSecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
 }
 
 @description('Remote public key')
-@secure()
 param remoteServerPublicKey string = ''
 // Store the remote public key in Key Vault
 resource remotePublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {

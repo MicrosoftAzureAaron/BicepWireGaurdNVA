@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "5914431887163953552"
+      "templateHash": "8801223771556604220"
     }
   },
   "parameters": {
@@ -79,7 +79,7 @@
       }
     },
     "remoteServerPublicKey": {
-      "type": "securestring",
+      "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "Remote public key"
