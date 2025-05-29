@@ -4,7 +4,7 @@
 param vmSku string = 'Standard_F2as_v6'
 
 @description('Name of the Virtual Machine')
-var vmName = 'WireGuardNVA'
+param vmName string = 'WireGuardNVA'
 
 @description('Name of the existing Key Vault')
 param keyVaultName string = 'HATestKeyVault'

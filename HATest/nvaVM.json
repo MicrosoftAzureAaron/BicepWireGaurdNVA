@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11033219979726968126"
+      "templateHash": "8201410319357335871"
     }
   },
   "parameters": {
@@ -14,6 +14,13 @@
       "defaultValue": "Standard_F2as_v6",
       "metadata": {
         "description": "Select the VM SKU"
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "WireGuardNVA",
+      "metadata": {
+        "description": "Name of the Virtual Machine"
       }
     },
     "keyVaultName": {
@@ -38,8 +45,7 @@
     }
   },
   "variables": {
-    "vmName": "WireGuardNVA",
-    "adminPasswordSecretName": "[format('{0}AdminPassword', variables('vmName'))]",
+    "adminPasswordSecretName": "[format('{0}AdminPassword', parameters('vmName'))]",
     "ubuntuImage": {
       "publisher": "canonical",
       "offer": "0001-com-ubuntu-server-focal",
@@ -51,7 +57,7 @@
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2023-02-01",
-      "name": "[format('{0}/{1}', parameters('keyVaultName'), format('{0}AdminUsername', variables('vmName')))]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), format('{0}AdminUsername', parameters('vmName')))]",
       "properties": {
         "value": "[parameters('adminUsername')]"
       }
@@ -67,7 +73,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2023-02-01",
-      "name": "[format('{0}Nic', variables('vmName'))]",
+      "name": "[format('{0}Nic', parameters('vmName'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "enableIPForwarding": true,
@@ -87,7 +93,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-03-01",
-      "name": "[variables('vmName')]",
+      "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "identity": {
         "type": "UserAssigned",
@@ -100,7 +106,7 @@
           "vmSize": "[parameters('vmSku')]"
         },
         "osProfile": {
-          "computerName": "[variables('vmName')]",
+          "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -116,7 +122,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', parameters('vmName')))]"
             }
           ]
         },
@@ -128,13 +134,13 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', variables('vmName')))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}Nic', parameters('vmName')))]"
       ]
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2023-03-01",
-      "name": "[format('{0}/{1}', variables('vmName'), 'customScript')]",
+      "name": "[format('{0}/{1}', parameters('vmName'), 'customScript')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
@@ -149,7 +155,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
   ]
