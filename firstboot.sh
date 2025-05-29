@@ -237,9 +237,6 @@ EOF"
 # Set permissions
 sudo chmod 600 /etc/wireguard/wg0.conf
 
-#restart wiregaurd service to apply new keys if it was already running
-sudo systemctl restart wg-quick@wg0 
-
 # Enable and start WireGuard
 echo "Enabling and starting WireGuard service..."
 sudo systemctl enable wg-quick@wg0

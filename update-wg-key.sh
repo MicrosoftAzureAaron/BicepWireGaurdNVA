@@ -114,6 +114,17 @@ else
 fi
 echo "[update-wg-key.sh] WireGuard keys checked successfully."
 
+sleep 5
+if sudo wg show wg0 > /dev/null 2>&1; then
+    echo "WireGuard tunnel wg0 is up and running."
+    sudo wg show wg0
+else
+    echo "WireGuard tunnel wg0 failed to start. Check configuration and logs."
+    sudo systemctl status wg-quick@wg0 --no-pager
+    sudo systemctl restart wg-quick@wg0
+    exit 1
+fi
+
 # Check for commit version changes before downloading firstboot.sh
 REMOTE_COMMIT=$(curl -fsSL https://api.github.com/repos/MicrosoftAzureAaron/BicepWireGaurdNVA/commits/main | grep '"sha":' | head -n 1 | awk -F '"' '{print $4}')
 LOCAL_COMMIT_FILE="/home/azureuser/firstboot.sh.commit"
