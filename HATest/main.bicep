@@ -45,7 +45,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2023-04-01' = {
   }
 }
 
-resource lb 'Microsoft.Network/loadBalancers@2023-04-01' = {
+resource elb 'Microsoft.Network/loadBalancers@2023-04-01' = {
   name: '${vnetName}-ext-lb'
   location: resourceGroup().location
   sku: {
@@ -71,7 +71,8 @@ resource lb 'Microsoft.Network/loadBalancers@2023-04-01' = {
     probes: []
   }
 }
-resource internalLb 'Microsoft.Network/loadBalancers@2023-04-01' = {
+
+resource iLb 'Microsoft.Network/loadBalancers@2023-04-01' = {
   name: '${vnetName}-int-lb'
   location: resourceGroup().location
   sku: {
@@ -99,6 +100,7 @@ resource internalLb 'Microsoft.Network/loadBalancers@2023-04-01' = {
     probes: []
   }
 }
+
 // Deploy a new Key Vault and set access policy for the VM's managed identity
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   name: keyVaultName
