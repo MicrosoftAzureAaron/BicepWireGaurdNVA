@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "2631396988641919642"
+      "templateHash": "2643621913649397519"
     }
   },
   "parameters": {
@@ -68,6 +68,11 @@
         "hardwareProfile": {
           "vmSize": "[parameters('vmSku')]"
         },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01').properties.secrets[parameters('adminUsernameSecretName')].value]",
+          "adminPassword": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01', 'Full').properties.secrets[parameters('adminPasswordSecretName')].value]"
+        },
         "storageProfile": {
           "imageReference": "[variables('ubuntuImage')]",
           "osDisk": {
@@ -77,18 +82,10 @@
             }
           }
         },
-        "osProfile": {
-          "computerName": "[parameters('vmName')]",
-          "adminUsername": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01').properties.secrets[parameters('adminUsernameSecretName')].value]",
-          "adminPassword": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.KeyVault/vaults/{2}', subscription().subscriptionId, resourceGroup().name, parameters('keyVaultName')), '2019-09-01', 'Full').properties.secrets[parameters('adminPasswordSecretName')].value]"
-        },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
-              "properties": {
-                "primary": true
-              }
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
             }
           ]
         },

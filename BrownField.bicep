@@ -38,7 +38,6 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-02-01' existing = {
   name: '${vmName}-nic'
 }
 
-// Deploy VM using existing NIC and OS disk
 resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
   name: vmName
   location: resourceGroup().location
@@ -52,27 +51,24 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     hardwareProfile: {
       vmSize: vmSku
     }
-    storageProfile: {
-      imageReference: ubuntuImage
-      osDisk: {
-      createOption: 'FromImage'
-      managedDisk: {
-        storageAccountType: 'Standard_LRS'
-      }
-      }
-    }
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPassword
     }
+    storageProfile: {
+      imageReference: ubuntuImage
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'Standard_LRS'
+        }
+      }
+    }
     networkProfile: {
       networkInterfaces: [
         {
           id: nic.id
-          properties: {
-            primary: true
-          }
         }
       ]
     }
