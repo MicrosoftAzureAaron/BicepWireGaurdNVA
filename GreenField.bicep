@@ -119,6 +119,10 @@ resource nvaPublicKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if 
   }
 }
 
+// Assign Key Vault Administrator role to the user-assigned identity at the Key Vault scope
+@description('Your objectId or service principal to assign as Key Vault Administrator')
+param keyVaultAdminObjectId string
+
 @description('Ubuntu 20.04 LTS Gen2 image reference')
 var ubuntuImage = {
   publisher: 'canonical'
@@ -269,10 +273,6 @@ resource userAssignedIdentitySecretContributorRole 'Microsoft.Authorization/role
     principalType: 'ServicePrincipal'
   }
 }
-
-// Assign Key Vault Administrator role to the user-assigned identity at the Key Vault scope
-@description('Your objectId or service principal to assign as Key Vault Administrator')
-param keyVaultAdminObjectId string
 
 resource keyVaultAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(keyVault.id, 'KeyVaultAdmin')
