@@ -1,3 +1,7 @@
 temp.txt
 keyvaultgwconfig.sh
-/HATest/
+HATest/main.bicep
+HATest/main.json
+HATest/nvaVM.bicep
+HATest/nvaVM.json
+HATest/readme.md
